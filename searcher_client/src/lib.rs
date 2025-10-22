@@ -64,6 +64,7 @@ pub async fn get_searcher_client_auth(
 ) -> BlockEngineConnectionResult<
     SearcherServiceClient<InterceptedService<Channel, ClientInterceptor>>,
 > {
+    println!("Getting searcher client with auth...");
     let auth_channel = create_grpc_channel(block_engine_url).await?;
     let client_interceptor = ClientInterceptor::new(
         AuthServiceClient::new(auth_channel),
@@ -81,6 +82,7 @@ pub async fn get_searcher_client_auth(
 pub async fn get_searcher_client_no_auth(
     block_engine_url: &str,
 ) -> BlockEngineConnectionResult<SearcherServiceClient<Channel>> {
+    println!("Getting searcher client without auth...");
     let searcher_channel = create_grpc_channel(block_engine_url).await?;
     let searcher_client = SearcherServiceClient::new(searcher_channel);
     Ok(searcher_client)
@@ -91,6 +93,12 @@ pub async fn create_grpc_channel(url: &str) -> BlockEngineConnectionResult<Chann
     if url.starts_with("https") {
         endpoint = endpoint.tls_config(tonic::transport::ClientTlsConfig::new())?;
     }
+    // Configure custom gRPC settings
+    // println!("Configuring gRPC channel with custom settings...none");
+    // endpoint = endpoint
+    // //     .keep_alive_while_idle(true)
+    // //     .http2_keep_alive_interval(Duration::from_secs(30));
+    // .concurrency_limit(256);
     Ok(endpoint.connect().await?)
 }
 
